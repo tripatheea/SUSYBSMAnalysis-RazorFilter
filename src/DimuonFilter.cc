@@ -60,7 +60,7 @@ DimuonFilter::DimuonFilter(const edm::ParameterSet& iConfig)
     maxNEvents_(iConfig.getParameter<int>("maxNEvents")),
     nEvents_(0)
 {
-  rootFile_ = new TFile(rootFileName_.c_str(), "RECREATE");
+  //rootFile_ = new TFile(rootFileName_.c_str(), "RECREATE");
 
   int nbins = int((invariantMassMax_ - invariantMassMin_)/binInterval_); 
   
@@ -213,15 +213,15 @@ DimuonFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
       if ( last_was_tracker && this_is_tracker )
         return false; // TT
       
-      invariantMasses_->Fill(m);
+      //invariantMasses_->Fill(m);
 
-      csvOut_<< event.id().run() <<", "<< event.id().event() <<", "
-	     << last_type <<", "
-             << last_energy <<", "<< last_px <<", "<< last_py <<", "<< last_pz <<", "
-             << last_pt <<", "<< last_eta <<", "<< last_phi <<", "<< last_charge <<", "
-             << this_type <<", "
-	     << energy <<", "<< px <<", "<< py <<", "<< pz <<", "
-             << pt <<", "<< eta <<", "<< phi <<", "<< charge <<", "
+      csvOut_<< event.id().run() <<","<< event.id().event() <<","
+	     << last_type <<","
+             << last_energy <<","<< last_px <<","<< last_py <<","<< last_pz <<","
+             << last_pt <<","<< last_eta <<","<< last_phi <<","<< last_charge <<","
+             << this_type <<","
+	     << energy <<","<< px <<","<< py <<","<< pz <<","
+             << pt <<","<< eta <<","<< phi <<","<< charge <<","
              << m <<std::endl;
     }
   }
@@ -234,7 +234,7 @@ DimuonFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 void 
 DimuonFilter::beginJob()
 {
-  csvOut_<<"RunNo, EvNo, Type1, E1, px1 , py1, pz1, pt1, eta1, phi1, Q1, Type2, E2, px2, py2, pz2, pt2, eta2, phi2, Q2, M"<<std::endl;
+  csvOut_<<"Run,Event,Type1,E1,px1,py1,pz1,pt1,eta1,phi1,Q1,Type2,E2,px2,py2,pz2,pt2,eta2,phi2,Q2,M"<<std::endl;
 }
 
 void 
@@ -246,7 +246,5 @@ DimuonFilter::endJob()
 
   csvOut_.close();
 }
-
-
 
 DEFINE_FWK_MODULE(DimuonFilter);

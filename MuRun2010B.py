@@ -1,17 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
 
-process = cms.Process("ISPY")
-process.load("ISpy/Analyzers/ISpy_AOD_Producer_cff")
+process = cms.Process("OPENDATA")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
+process.GlobalTag.globaltag = 'GR_R_42_V25::All'
 
 readFiles = cms.untracked.vstring()
-secFiles = cms.untracked.vstring() 
-process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
+process.source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( [
        'root://eospublic.cern.ch//eos/opendata/cms/Run2010B/Mu/AOD/Apr21ReReco-v1/0000/00459D48-EB70-E011-AF09-90E6BA19A252.root',
        'root://eospublic.cern.ch//eos/opendata/cms/Run2010B/Mu/AOD/Apr21ReReco-v1/0000/0045B1D9-8775-E011-AC5D-0019BB3F73A4.root',
@@ -3016,9 +3014,6 @@ readFiles.extend( [
        'root://eospublic.cern.ch//eos/opendata/cms/Run2010B/Mu/AOD/Apr21ReReco-v1/0005/FCFA03A0-6F72-E011-870C-90E6BA0D09CA.root' ] );
 
 
-secFiles.extend( [
-               ] )
-
 goodJSON = 'Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON_v2.txt'
 myLumis = LumiList.LumiList(filename = goodJSON).getCMSSWString().split(',')
 process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange()
@@ -3030,6 +3025,6 @@ process.load("DimuonFilter.DimuonFilter.DimuonFilter_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-process.iSpy = cms.Path(process.DimuonFilter)
+process.Filter = cms.Path(process.DimuonFilter)
 
-process.schedule = cms.Schedule(process.iSpy)
+process.schedule = cms.Schedule(process.Filter)
