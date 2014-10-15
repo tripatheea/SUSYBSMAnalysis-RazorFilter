@@ -1,10 +1,46 @@
-dimuon-filter
-=============
+This package is a filter that selects events from the Mu primary dataset from the CMS open
+data release. In particular, the event is selected if (for simplicity) there are precisely two muons
+in the event and at least one is a global muon. A csv file containing the four-vector information, charge, and invariant mass of the two muons is produced.
 
-thomas.mccauley@cern.ch
+See http://opendata.cern.ch for more information and for context on the instructions below)
 
-This CMSSW filter selects events with either precisely two tracker or global muons and calculates an invariant mass.
+To produce files in the VM open a terminal with the X terminal emulator (an icon bottom-left of the VM screen)
+and input the commands as explained below.
 
-It has been developed and tested in CMSSW_4_2_8. In your src/ 
+* Create a CMSSW environment: 
 
-git clone http://github.com/cmsopendata-finland/dimuon-filter DimuonFilter/DimuonFilter
+```
+    cmsrel CMSSW_4_2_8
+```
+
+* Change to the CMSSW_4_2_8/src/ directory:
+
+```
+    cd CMSSW_4_2_8/src/
+```
+* Initialize the CMSSW environment:
+
+```
+    cmsenv
+```
+* Clone the source code:
+
+```
+    git clone http://github.com/tpmccauley/dimuon-filter DimuonFilter/DimuonFilter
+````
+* Compile the code with the command:
+
+```
+    scram b
+```
+* Go to the source directory:
+
+```
+    cd DimounFilter/DimuonFilter
+```
+* Run the example configuration file:
+
+```
+    cmsRun Mu2010RunB.py
+```
+which will produce a csv file. Enjoy!
