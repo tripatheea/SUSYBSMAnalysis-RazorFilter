@@ -3023,8 +3023,14 @@ from FWCore.MessageLogger.MessageLogger_cfi import *
 
 process.load("DimuonFilter.DimuonFilter.DimuonFilter_cfi")
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+# Set the output file name and the invariant mass range (GeV)
+process.DimuonFilter.csvFileName = cms.string("MuRun2010B.csv")
+process.DimuonFilter.invariantMassMin = cms.double(2.0)
+process.DimuonFilter.invariantMassMax = cms.double(110.0)
+
+# Change this to set the maximum number of events to process
+# -1 means all of them
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
 
 process.Filter = cms.Path(process.DimuonFilter)
-
 process.schedule = cms.Schedule(process.Filter)

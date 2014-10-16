@@ -26,7 +26,7 @@ and input the commands as explained below.
 * Clone the source code:
 
 ```
-    git clone http://github.com/tpmccauley/dimuon-filter DimuonFilter/DimuonFilter
+    git clone https://github.com/tpmccauley/dimuon-filter DimuonFilter/DimuonFilter
 ````
 * Compile the code with the command:
 
@@ -38,9 +38,10 @@ and input the commands as explained below.
 ```
     cd DimounFilter/DimuonFilter
 ```
-* Run the example configuration file:
+* Run the example configuration file (see comments in the file on changing parameters):
 
 ```
-    cmsRun Mu2010RunB.py
+    cmsRun MuRun2010B.py
 ```
-which will produce a csv file. Enjoy!
+which will produce a csv file: MuRun2010B.csv
+Enjoy!
