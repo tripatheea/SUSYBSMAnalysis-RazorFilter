@@ -45,5 +45,5 @@ and input the commands as explained below.
 ```
     cmsRun MultiJetRun2010B.py
 ```
-which will produce a csv file: MultiJetRun2010B.csv and a ROOT file: MultiJetRun2010B.root
-Enjoy!
+which will produce a csv file: MultiJetRun2010B.csv and a ROOT file:
+    MultiJetRun2010B.root. Enjoy!
