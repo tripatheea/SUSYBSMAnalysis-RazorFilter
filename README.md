@@ -1,3 +1,5 @@
+(forked from tpmccauley/dimuon-filter)
+
 This package is a filter that selects events from the MultiJet primary dataset from the CMS open
 data release, and computes the razor variables MR and Rsq, used in
 supersymmetric particle searches. In particular, the event is selected
