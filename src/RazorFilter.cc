@@ -53,6 +53,15 @@ private:
   std::ofstream csvOut_;
   std::string csvFileName_;
 
+  double MR;
+  double Rsq;
+  double HT;
+  double MET;
+  int runNum;
+  int lumiNum;
+  int eventNum;
+  int nJets;
+
 };
 
 RazorFilter::RazorFilter(const edm::ParameterSet& iConfig)
@@ -66,8 +75,8 @@ RazorFilter::RazorFilter(const edm::ParameterSet& iConfig)
   rootFile_ = new TFile(rootFileName_.c_str(), "RECREATE");
 
   
-  razorTree_ = new TTree("razor tree",
-			 "razor tree");
+  razorTree_ = new TTree("razorTree",
+			 "razor Tree");
 
   csvOut_.open(csvFileName_.c_str());
 
@@ -92,8 +101,15 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
     return false;
   }
   
-  double pt, eta;
-  int nJets = 0;
+  nJets = -1;
+  MR = -1;
+  Rsq = -1;
+  MET = -1;
+  HT = -1;
+  runNum = -1;
+  lumiNum = -1;
+  eventNum = -1;
+  
   
   // Only examine if there are at least 2 jets
   if ( jets->size() < 2 )
@@ -101,13 +117,16 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 
   std::vector<math::XYZTLorentzVector> goodJets;
    
+  double pt, eta;
+  HT = 0;
   for ( reco::PFJetCollection::const_iterator it = jets->begin(), end = jets->end(); 
         it != end; ++it)
   {
     pt = (*it).pt();
     eta = (*it).eta();
-    if (pt > minJetPt_ && eta < maxJetEta_){
+    if (pt > minJetPt_ && fabs(eta) < maxJetEta_){
       goodJets.push_back((*it).p4());
+      HT += pt;
       nJets++;
     }
   }
@@ -125,12 +144,18 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
    TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
    TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
-   double MR = calcMR(ja,jb);
-   double Rsq  = calcRsq(MR,ja,jb,met);
-  
+   MR = calcMR(ja,jb);
+   Rsq  = calcRsq(MR,ja,jb,met);
+   MET = (met->front()).pt();
+   
+   runNum = event.id().run();
+   lumiNum = event.id().luminosityBlock();
+   eventNum = event.id().event();
    
    csvOut_<< event.id().run() <<","<< event.id().luminosityBlock() <<","<< event.id().event() <<","
-	  << MR <<","<< Rsq << std::endl;
+	  << MR <<","<< Rsq << "," << HT << "," << MET << "," << nJets << std::endl;
+
+   razorTree_->Fill();
   
   return true;
 }
@@ -138,7 +163,16 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 void 
 RazorFilter::beginJob()
 {
-  csvOut_<<"Run,Lumi,Event,MR,Rsq"<<std::endl;
+  csvOut_<<"Run,Lumi,Event,MR,Rsq,HT,MET,nJets"<<std::endl;
+
+  razorTree_->Branch("runNum", &runNum, "runNum/I");
+  razorTree_->Branch("lumiNum", &lumiNum, "lumiNum/I");
+  razorTree_->Branch("eventNum", &eventNum, "eventNum/I");
+  razorTree_->Branch("MR", &MR, "MR/D");
+  razorTree_->Branch("Rsq", &Rsq, "Rsq/D");
+  razorTree_->Branch("HT", &HT, "HT/D");
+  razorTree_->Branch("MET", &MET, "MET/D");
+  razorTree_->Branch("nJets", &nJets, "nJets/I");
 }
 
 void 
@@ -230,7 +264,7 @@ RazorFilter::calcRsq(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handl
   double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
   
   //filter events
-  return float(MTR)*float(MTR)/float(MR)/float(MR); //Rsq
+  return MTR*MTR/MR/MR; //Rsq
   
 }
 
