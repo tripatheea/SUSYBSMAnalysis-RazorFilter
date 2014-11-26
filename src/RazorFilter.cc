@@ -14,6 +14,8 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
 
 #include <iostream>
 #include <string>
@@ -42,6 +44,7 @@ private:
       
   edm::InputTag jetInputTag_;
   edm::InputTag metInputTag_;
+  edm::InputTag btagInputTag_;
 
   std::string rootFileName_;
   double minJetPt_;
@@ -61,12 +64,14 @@ private:
   int lumiNum;
   int eventNum;
   int nJets;
+  int nBJets;
 
 };
 
 RazorFilter::RazorFilter(const edm::ParameterSet& iConfig)
   : jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
     metInputTag_(iConfig.getParameter<edm::InputTag>("metInputTag")),
+    btagInputTag_(iConfig.getParameter<edm::InputTag>("btagInputTag")),
     rootFileName_(iConfig.getParameter<std::string>("rootFileName")),
     minJetPt_(iConfig.getParameter<double>("minJetPt")),
     maxJetEta_(iConfig.getParameter<double>("maxJetEta")),
@@ -76,7 +81,7 @@ RazorFilter::RazorFilter(const edm::ParameterSet& iConfig)
 
   
   razorTree_ = new TTree("razorTree",
-			 "razor Tree");
+			 "razorTree");
 
   csvOut_.open(csvFileName_.c_str());
 
@@ -94,18 +99,22 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 
   edm::Handle<reco::PFMETCollection> met;
   event.getByLabel(metInputTag_, met);
+
+  edm::Handle<reco::JetTagCollection> btags;
+  event.getByLabel(btagInputTag_, btags);
   
-  if ( ! (jets.isValid() && met.isValid()) )
+  if ( ! (jets.isValid() && met.isValid() && btags.isValid()) )
   {
     std::cerr<<"RazorFilter: invalid collection"<<std::endl;
     return false;
   }
   
-  nJets = -1;
+  nJets = 0;
+  nBJets = 0;
   MR = -1;
   Rsq = -1;
   MET = -1;
-  HT = -1;
+  HT = 0;
   runNum = -1;
   lumiNum = -1;
   eventNum = -1;
@@ -117,8 +126,8 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 
   std::vector<math::XYZTLorentzVector> goodJets;
    
+  //loop over jets to find those passing pt, eta cuts
   double pt, eta;
-  HT = 0;
   for ( reco::PFJetCollection::const_iterator it = jets->begin(), end = jets->end(); 
         it != end; ++it)
   {
@@ -131,10 +140,25 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
     }
   }
 
+  //loop over btags to find those passing pt, eta cuts
+  for ( reco::JetTagCollection::const_iterator it = btags->begin(), end = btags->end(); 
+        it != end; ++it)
+  {
+    pt = (*it).first->pt();
+    eta = (*it).first->eta();
+    if (pt > minJetPt_ && fabs(eta) < maxJetEta_){
+    //if ( (*it).second > 0.898 ) // Tight working point for combined secondary vertex algorithm
+      if ( (*it).second > 0.679 ) // Medium working point for combined secondary vertex algorithm
+    //if ( (*it).second > 0.244 ) // Loose working point for combined secondary vertex algorithm
+	nBJets++;
+    }
+  }
+
   // only continue if there are at least 2 jets
   if (nJets < 2)
     return false;
   
+  //compute the hemispheres which minimize the invariant masses summed in quadrature
   std::auto_ptr<std::vector<math::XYZTLorentzVector> > hemispheres(new std::vector<math::XYZTLorentzVector> );
   this->computeHemispheres(hemispheres,goodJets);
 
@@ -144,17 +168,22 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
    TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
    TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
+   // compute the razor variables
    MR = calcMR(ja,jb);
    Rsq  = calcRsq(MR,ja,jb,met);
+
+   // record the MET
    MET = (met->front()).pt();
    
    runNum = event.id().run();
    lumiNum = event.id().luminosityBlock();
    eventNum = event.id().event();
    
+   // write out to csv file
    csvOut_<< event.id().run() <<","<< event.id().luminosityBlock() <<","<< event.id().event() <<","
-	  << MR <<","<< Rsq << "," << HT << "," << MET << "," << nJets << std::endl;
+	  << MR <<","<< Rsq << "," << HT << "," << MET << "," << nJets << "," << nBJets << std::endl;
 
+   // fill the tree
    razorTree_->Fill();
   
   return true;
@@ -163,7 +192,7 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 void 
 RazorFilter::beginJob()
 {
-  csvOut_<<"Run,Lumi,Event,MR,Rsq,HT,MET,nJets"<<std::endl;
+  csvOut_<<"Run,Lumi,Event,MR,Rsq,HT,MET,nJets,nBJets"<<std::endl;
 
   razorTree_->Branch("runNum", &runNum, "runNum/I");
   razorTree_->Branch("lumiNum", &lumiNum, "lumiNum/I");
@@ -173,6 +202,7 @@ RazorFilter::beginJob()
   razorTree_->Branch("HT", &HT, "HT/D");
   razorTree_->Branch("MET", &MET, "MET/D");
   razorTree_->Branch("nJets", &nJets, "nJets/I");
+  razorTree_->Branch("nBJets", &nBJets, "nBJets/I");
 }
 
 void 

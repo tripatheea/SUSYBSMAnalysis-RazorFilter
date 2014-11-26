@@ -2171,7 +2171,6 @@ process.RazorFilter.maxJetEta = cms.double(3.0)
 
 # Change this to set the maximum number of events to process
 # -1 means all of them
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
-
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
 process.Filter = cms.Path(process.RazorFilter)
 process.schedule = cms.Schedule(process.Filter)
