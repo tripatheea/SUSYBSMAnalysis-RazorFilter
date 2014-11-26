@@ -1,6 +1,8 @@
-This package is a filter that selects events from the Mu primary dataset from the CMS open
-data release. In particular, the event is selected if (for simplicity) there are precisely two muons
-in the event and at least one is a global muon. A csv file containing the four-vector information, charge, and invariant mass of the two muons is produced.
+This package is a filter that selects events from the MultiJet primary dataset from the CMS open
+data release, and computes the razor variables MR and Rsq, used in
+supersymmetric particle searches. In particular, the event is selected
+if there are at least two "Paticle Flow" jets with pT>30 GeV. A csv
+file and a ROOT file containing the MR and Rsq values of the event is produced.
 
 See http://opendata.cern.ch for more information and for context on the instructions below.
 
@@ -26,7 +28,7 @@ and input the commands as explained below.
 * Clone the source code:
 
 ```
-    git clone https://github.com/tpmccauley/dimuon-filter DimuonFilter/DimuonFilter
+    git clone https://github.com/jmduarte/SUSYBSMAnalysis-RazorFilter SUSYBSMAnalysis/RazorFilter
 ````
 * Compile the code with the command:
 
@@ -36,12 +38,12 @@ and input the commands as explained below.
 * Go to the source directory:
 
 ```
-    cd DimounFilter/DimuonFilter
+    cd SUSYBSMAnalysis/RazorFilter
 ```
 * Run the example configuration file (see comments in the file on changing parameters):
 
 ```
-    cmsRun MuRun2010B.py
+    cmsRun MultiJetRun2010B.py
 ```
-which will produce a csv file: MuRun2010B.csv
+which will produce a csv file: MultiJetRun2010B.csv and MultiJetRun2010B.root
 Enjoy!
