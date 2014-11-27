@@ -3,8 +3,8 @@
 This package is a filter that selects events from the MultiJet primary dataset from the CMS open
 data release, and computes the razor variables MR and Rsq, used in
 supersymmetric particle searches. In particular, the event is selected
-if there are at least two "Paticle Flow" jets with pT>30 GeV and |eta|<3. A csv
-file and a ROOT file containing the MR, Rsq, HT, MET, number of jets, and number of b-jets for each event is produced.
+if there are at least two "Paticle Flow" jets with pT>60 GeV and |eta|<3. A csv
+file and a ROOT file containing the MR, Rsq, HT, MET, number of jets, and number of b-jets (using the kinematic requirements of pT>40 GeV and |eta|<3) for each event is produced.
 
 See http://opendata.cern.ch for more information and for context on the instructions below.
 
@@ -48,4 +48,4 @@ and input the commands as explained below.
     cmsRun MultiJetRun2010B.py
 ```
 which will produce a csv file: MultiJetRun2010B.csv and a ROOT file:
-    MultiJetRun2010B.root. Enjoy!
+    MultiJetRun2010B.root. 

@@ -6,6 +6,6 @@ RazorFilter = cms.EDFilter('RazorFilter' ,
                             btagInputTag = cms.InputTag("combinedSecondaryVertexMVABJetTags"),
                             csvFileName = cms.string("razor.csv"),
                             rootFileName = cms.string("razor.root"),
-                            minJetPt = cms.double(30.0),
+                            minJetPt = cms.double(40.0),
                             maxJetEta = cms.double(3.0)
                             )

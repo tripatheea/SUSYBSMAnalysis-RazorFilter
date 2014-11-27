@@ -2161,16 +2161,22 @@ process.source.lumisToProcess.extend(myLumis)
 
 from FWCore.MessageLogger.MessageLogger_cfi import *
 
-process.load("SUSYBSMAnalysis.RazorFilter.RazorFilter_cfi")
+process.load("SUSYBSMAnalysis.RazorFilter.DijetFilter_cfi")
+# Dijet cut
+process.DijetFilter.jetCollection = cms.InputTag("ak5PFJets")
+process.DijetFilter.ptCut = cms.double(60.0)
+process.DijetFilter.maxRapidityCut = cms.double(3.0)
+process.DijetFilter.nJetMin = cms.uint32(2)
 
+process.load("SUSYBSMAnalysis.RazorFilter.RazorFilter_cfi")
 # Set the output file names and the jet pT and eta cuts
 process.RazorFilter.csvFileName = cms.string("MultiJetRun2010B.csv")
 process.RazorFilter.rootFileName = cms.string("MultiJetRun2010B.root")
-process.RazorFilter.minJetPt = cms.double(30.0)
+process.RazorFilter.minJetPt = cms.double(40.0)
 process.RazorFilter.maxJetEta = cms.double(3.0)
 
 # Change this to set the maximum number of events to process
 # -1 means all of them
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
-process.Filter = cms.Path(process.RazorFilter)
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
+process.Filter = cms.Path(process.DijetFilter*process.RazorFilter)
 process.schedule = cms.Schedule(process.Filter)

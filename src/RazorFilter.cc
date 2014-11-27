@@ -14,6 +14,9 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/strbitset.h"
+
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 
@@ -46,6 +49,8 @@ private:
   edm::InputTag metInputTag_;
   edm::InputTag btagInputTag_;
 
+  PFJetIDSelectionFunctor m_jetIDfunc;
+
   std::string rootFileName_;
   double minJetPt_;
   double maxJetEta_;
@@ -72,6 +77,7 @@ RazorFilter::RazorFilter(const edm::ParameterSet& iConfig)
   : jetInputTag_(iConfig.getParameter<edm::InputTag>("jetInputTag")),
     metInputTag_(iConfig.getParameter<edm::InputTag>("metInputTag")),
     btagInputTag_(iConfig.getParameter<edm::InputTag>("btagInputTag")),
+    m_jetIDfunc(PFJetIDSelectionFunctor::FIRSTDATA,PFJetIDSelectionFunctor::LOOSE),
     rootFileName_(iConfig.getParameter<std::string>("rootFileName")),
     minJetPt_(iConfig.getParameter<double>("minJetPt")),
     maxJetEta_(iConfig.getParameter<double>("maxJetEta")),
@@ -134,9 +140,14 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
     pt = (*it).pt();
     eta = (*it).eta();
     if (pt > minJetPt_ && fabs(eta) < maxJetEta_){
-      goodJets.push_back((*it).p4());
-      HT += pt;
-      nJets++;
+      pat::strbitset ret = m_jetIDfunc.getBitTemplate();
+      ret.set(false);
+      bool isGoodJet = m_jetIDfunc((*it),ret);
+      if(isGoodJet) {
+	goodJets.push_back((*it).p4());
+	HT += pt;
+	nJets++;
+      }
     }
   }
 
@@ -147,9 +158,9 @@ RazorFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup)
     pt = (*it).first->pt();
     eta = (*it).first->eta();
     if (pt > minJetPt_ && fabs(eta) < maxJetEta_){
-    //if ( (*it).second > 0.898 ) // Tight working point for combined secondary vertex algorithm
+      //if ( (*it).second > 0.898 ) // Tight working point for combined secondary vertex algorithm
       if ( (*it).second > 0.679 ) // Medium working point for combined secondary vertex algorithm
-    //if ( (*it).second > 0.244 ) // Loose working point for combined secondary vertex algorithm
+      //if ( (*it).second > 0.244 ) // Loose working point for combined secondary vertex algorithm
 	nBJets++;
     }
   }
