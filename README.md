@@ -1,4 +1,6 @@
-(forked from tpmccauley/dimuon-filter)
+(forked from jmduarte/SUSYBSMAnalysis-RazorFilter)
+
+(MIT)
 
 This package is a filter that selects events from the MultiJet primary dataset from the CMS open
 data release, and computes the razor variables MR and Rsq, used in
@@ -30,7 +32,7 @@ and input the commands as explained below.
 * Clone the source code:
 
 ```
-    git clone https://github.com/jmduarte/SUSYBSMAnalysis-RazorFilter SUSYBSMAnalysis/RazorFilter
+    git clone https://github.com/tripatheea/SUSYBSMAnalysis-RazorFilter SUSYBSMAnalysis/RazorFilter
 ````
 * Compile the code with the command:
 
